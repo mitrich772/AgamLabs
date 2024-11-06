@@ -145,8 +145,26 @@ double ncf_pdf(double x,double f1,double f2,double delta) {
   non_central_f_distribution<>d(f1,f2,delta);
   return(pdf(d,x));
 }
+//#######################Kaplan-Meier#################################
+void cum(int n,double* x,int* r,int &k,double* fcum,double* ycum) {
 
-
+ int i,j;
+ double s;
+ 
+  k=0;
+  for (i=1;i<=n;i++) {
+      s = 1.0;
+      for (j=1;j<=i;j++)  if (r[j-1]==0) s=s*(n*1.0-j*1.0)/(n*1.0- j*1.0+1.0);
+         if (r[i-1]==0) {
+          //fcum[k]= 1.-s;
+          //fcum[k]=((1.-s)*n-0.375)/(n+0.25);
+          //fcum[k]=((1.-s)*n-0.5)/n;
+          fcum[k]=(1.-s)*n*1.0/(n+1.0);
+          if (s==1 || s==0) fcum[k] = ((1-s)*n-0.375)/(n+0.25);
+          ycum[k]=x[i-1];k++;
+      }
+  }
+}
 //#############################################################
 
 int neldermead(vector<double>&x0, double eps,double(*func)(vector<double>)) {
@@ -484,7 +502,7 @@ int main() {
       xplow[i]=xsimpl[0]-t[kx-i-1]*xsimpl[1]/sqrt(nesm.n);
    }      
 
-/*
+
 //###################График#####################################
 
     vector<double>xx;vector<double>y; 
@@ -494,7 +512,7 @@ int main() {
     int *rq;
     xq=new double[nesm.n];rq=new int[nesm.n];
     for(i=0;i<nesm.n;i++) {xq[i]=nesm.x[i];rq[i]=nesm.r[i];}
-    cum(nesm.n,xq,rq,k,fcum,ycum);
+    cum(nesm.n,xq,rq,k,fcum,ycum); // размер выборки, время наблюдений, цензурирование,кол выж,массив для оценок функции выж,массив для соотв знач
 
     for (i = 0; i < k; i++) {
        xx.push_back(ycum[i]);
@@ -516,26 +534,26 @@ int main() {
        y.push_back(zp[i]+5.0);
     }
  
-    ofstream out1("Out/MLE_Normal.xout");
+    ofstream out1("Out/MLE_Normal.csv");
     out1<<nc<<endl;
-    for(i=0;i<nc;i++) out1<<m[i]<<" ";
+    for(i=0;i<nc;i++) out1<<m[i]<<";";
     out1<<endl;
 
     int km=0;
     for(i=0;i<nc;i++) {
-      for(j=0;j<m[i];j++) out1<<xx[j+km]<<" ";
+      for(j=0;j<m[i];j++) out1<<xx[j+km]<<";";
       km+=m[i];
       out1<<endl;
     }
      
      km=0;
      for(i=0;i<nc;i++) {
-      for(j=0;j<m[i];j++) out1<<y[j+km]<<" ";
+      for(j=0;j<m[i];j++) out1<<y[j+km]<<";";
       km+=m[i];
       out1<<endl;
     } 
      out1.close();
-*/
+
  //#################Вывод############################# 
 
  
